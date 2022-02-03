@@ -9,6 +9,7 @@ cursor = connectdb.cursor()
 
 # Create database table
 cursor.execute("""CREATE TABLE students (
+        id, integer,
         first_name text,
         last_name text,
         date_available text
