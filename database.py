@@ -1,5 +1,6 @@
 import sqlite3
 import calendar_project
+import students
 
 # Create a database connection
 connectdb = sqlite3.connect('students.db')
