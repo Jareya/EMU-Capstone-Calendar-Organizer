@@ -9,11 +9,11 @@ root.title("Calendar")
 
 # Functions to show and hide the date picker
 cal = Calendar(root, selectmode='day', borderwidth=3)
-cal.grid(column=0, row=1, columnspan=2)
+cal.grid(column=0, row=1, columnspan=2, rowspan=1)
 
 
 def show_cal():
-    cal.grid(column=0, row=1, columnspan=2)
+    cal.grid(column=0, row=1, columnspan=2, rowspan=1)
 
 
 def hide_cal():
@@ -24,7 +24,28 @@ Button(root, text='Show Calendar', padx=20, command=show_cal).grid(column=0, row
 Button(root, text='Hide Calendar', padx=21, command=hide_cal).grid(column=1, row=0)
 
 # Month view
-Label(root, text='Month', padx=20).grid(column=2, row=0, columnspan=6)
+month = 29
+i = 1
+column = 0
+row = 1
+monthView = Tk()
+monthView.title("Calendar")
+Label(monthView, text='February', padx=20).grid(column=0, row=0, columnspan=6)
+while i <= month:
+    if column <= 5:
+        if i < 10:
+            Button(monthView, text=i, padx=53, pady=50).grid(column=column, row=row)
+            column += 1
+            i += 1
+            continue
+        Button(monthView, text=i, padx=50, pady=50).grid(column=column, row=row)
+        column += 1
+        i += 1
+        continue
+    row += 1
+    column = 0
+    i += 1
+
 
 # Event Creation
 startDate = None  # string
