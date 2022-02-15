@@ -24,28 +24,56 @@ Button(root, text='Show Calendar', padx=20, command=show_cal).grid(column=0, row
 Button(root, text='Hide Calendar', padx=21, command=hide_cal).grid(column=1, row=0)
 
 # Month view
-month = 29
-i = 1
-column = 0
-row = 1
+months = (("January", 31), ("February", 28), ("March", 31), ("April", 30), ("May", 31), ("June", 30),
+          ("July", 31), ("August", 31), ("September", 30), ("October", 31), ("November", 30), ("December", 31))
+monthNum = 0
+monthTuple = months[monthNum]
 monthView = Tk()
-monthView.title("Calendar")
-Label(monthView, text='February', padx=20).grid(column=0, row=0, columnspan=6)
-while i <= month:
-    if column <= 5:
-        if i < 10:
-            Button(monthView, text=i, padx=53, pady=50).grid(column=column, row=row)
+
+
+def monthUp():
+    global monthNum, monthTuple
+    monthNum = (monthNum + 1) % 12
+    monthTuple = months[monthNum]
+    createView()
+    print(monthNum)
+
+
+def monthDown():
+    global monthNum, monthTuple
+    monthNum = (monthNum - 1) % 12
+    monthTuple = months[monthNum]
+    createView()
+    print(monthNum)
+
+
+def createView():
+    monthView.title("Calendar")
+    Button(monthView, text='<', padx=20, command=monthDown).grid(column=0, row=0)
+    Button(monthView, text='>', padx=20, command=monthUp).grid(column=5, row=0)
+    Label(monthView, text=monthTuple[0], padx=20).grid(column=0, row=0, columnspan=6)
+    i = 1
+    column = 0
+    row = 1
+    while i <= monthTuple[1]:
+        if column <= 5:
+            if i < 10:
+                date = Label(monthView, text=i, padx=53, pady=50)
+                date.grid(column=column, row=row)
+                column += 1
+                i += 1
+                continue
+            date = Label(monthView, text=i, padx=53, pady=50)
+            date.grid(column=column, row=row)
             column += 1
             i += 1
             continue
-        Button(monthView, text=i, padx=50, pady=50).grid(column=column, row=row)
-        column += 1
+        row += 1
+        column = 0
         i += 1
-        continue
-    row += 1
-    column = 0
-    i += 1
 
+
+createView()
 
 # Event Creation
 startDate = None  # string
