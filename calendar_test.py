@@ -1,10 +1,11 @@
 from tkinter import *
 from tkcalendar import Calendar
+import sqlite3
 
 # Create background
 eventCreation = Tk()
-icon = PhotoImage(file="quill.ico")
-eventCreation.iconphoto(False, icon)
+#icon = PhotoImage(file="quill.ico")
+#eventCreation.iconphoto(False, icon)
 eventCreation.title("Calendar")
 
 # Functions to show and hide the date picker
@@ -51,17 +52,50 @@ def clear():
     event_description.delete(1.0, END)
     return None
 
+# function to show events (Query)
+def query():
+    conn = sqlite3.connect('calendar_events.db')
+    c = conn.cursor()
+    c.execute("SELECT *, oid FROM EVENTS")
+    events = c.fetchall()
+    #print(events) Test to see if it prints from data
+
+    #Loop through events to view on GUI
+    show_event = ''
+    for event in events:
+        show_event += str(event[0]) + ": " + str(event[1]) + "-" + str(event[2]) + " " + str(event[3]) + " ""\n"
+    event_label = Label(eventCreation, text=show_event)
+    event_label.grid(column=4, row=6, columnspan=2)
+    conn.commit()
+    conn.close()
+    return
 
 def create_event():
+    conn = sqlite3.connect('calendar_events.db')
+    c = conn.cursor()
     global startDate, endDate, eventName, description, eventData
     eventName = event_name.get()
     description = event_description.get('1.0', 'end-1c')
     eventData = [startDate, endDate, eventName, description]
     # print(eventData)
-    # TODO - Store the event data in sqlite 3 database
+    
+    # Insert into table
+    c.execute("INSERT INTO EVENTS VALUES (:event_name, :start_date, :end_date, :description)",
+            {
+                'event_name': eventName,
+                'start_date': startDate,
+                'end_date': endDate,
+                'description': description
+            })
+    conn.commit()
+    conn.close()
     return eventData
 
 
+#Button for showing events
+Button(eventCreation, text='Show Events', command = query).grid(column=4, row=7)
+
+#Buttons for selecting start/end dates
 Button(eventCreation, text='Select Start Date', padx=17, command=start_date).grid(column=0, row=2)
 Button(eventCreation, text='Select End Date', padx=18, command=end_date).grid(column=1, row=2)
 
@@ -130,4 +164,34 @@ Button(monthView, text='<', padx=20, command=month_down).grid(column=0, row=0)
 Button(monthView, text='>', padx=20, command=month_up).grid(column=5, row=0)
 create_view()  # Create the first month
 
+#Only run this once to create the database file
+'''
+#sqlite3 database
+
+connection_obj = sqlite3.connect('calendar_events.db')
+ 
+# cursor object
+cursor_obj = connection_obj.cursor()
+ 
+# Drop the GEEK table if already exists.
+cursor_obj.execute("DROP TABLE IF EXISTS EVENTS")
+ 
+# Creating table
+table = """ CREATE TABLE EVENTS (
+            EVENT_NAME VARCHAR(255) NOT NULL,
+            START_DATE CHAR(25) NOT NULL,
+            END_DATE CHAR(25),
+            DESCRIPTION CHAR(25)
+        ); """
+ 
+cursor_obj.execute(table)
+ 
+print("Table is Ready")
+ 
+# Close the connection
+connection_obj.close()
+'''
+
 eventCreation.mainloop()
+
+
