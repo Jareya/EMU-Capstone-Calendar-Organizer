@@ -1,7 +1,8 @@
 from tkinter import *
 from tkcalendar import Calendar
 import sqlite3
-
+from datetime import datetime, timedelta
+import time
 # Create background
 eventCreation = Tk()
 #icon = PhotoImage(file="quill.ico")
@@ -65,7 +66,8 @@ def query():
     c = conn.cursor()
     c.execute("SELECT *, oid FROM EVENTS")
     events = c.fetchall()
-    #print(events) Test to see if it prints from data
+    
+    print(events) #Test to see if it prints from data
 
     #Loop through events to view on GUI
     show_event = ''
@@ -73,6 +75,45 @@ def query():
         show_event += "[" + str(event[0]) + "] " + str(event[1]) + ": " + str(event[2] + "-" + str(event[3]) + " " + str(event[4])) + "\t" + str(event[7]) + "\n"
     event_label = Label(eventCreation, text=show_event)
     event_label.grid(column=2, row=1)
+    conn.commit()
+    conn.close()
+    return
+
+# Function to show available times
+
+def get_available_times(duration=timedelta(hours=1)):
+    conn = sqlite3.connect('calendar_events.db') #connect to database
+    c = conn.cursor()
+    c.execute("SELECT *, oid FROM EVENTS")
+    appointments = c.fetchall()
+
+    booked = []
+    all_events = []
+
+    #Grabs specific data needed for datetime format (Year, Month, Day, Time)
+    for appointment in appointments:
+        booked += [(appointment[4].split('/')[2], appointment[4].split('/')[0], appointment[4].split('/')[1], appointment[2].split(':')[0], appointment[4].split('/')[2], appointment[4].split('/')[0], appointment[4].split('/')[1], appointment[3].split(':')[0])]
+    #Creates datetime tuple 
+    for i in booked:
+        all_events.append(tuple((datetime(int(i[0]),int(i[1]),int(i[2]),int(i[3])), datetime(int(i[4]),int(i[5]),int(i[6]),int(i[7])))))
+
+
+    #The time range to find availabe slots
+    hours = (datetime(int(appointment[4].split('/')[2]), int(appointment[4].split('/')[0]), int(appointment[4].split('/')[1]), 9), (datetime(int(appointment[4].split('/')[2]), int(appointment[4].split('/')[0]), int(appointment[4].split('/')[1]), 18)))
+
+    #Sorts all events and displays the timeslots available 
+    slots = sorted([(hours[0], hours[0])] + all_events + [(hours[1], hours[1])])
+    show_available_slots=''
+    available_label = Label(eventCreation, text = show_available_slots)
+    for start, end in ((slots[i][1], slots[i+1][0]) for i in range(len(slots)-1)):
+        assert start <= end, "Cannot attend all apointments"
+        while start + duration <= end:
+            show_available_slots += "{:%H:%M} - {:%H:%M}".format(start, start + duration) + "\n"
+            print( "{:%H:%M} - {:%H:%M}".format(start, start + duration) + "\n")
+            start+= duration
+    
+    available_label = Label(eventCreation, text = show_available_slots)
+    available_label.grid(column=6, row=1)
     conn.commit()
     conn.close()
     return
@@ -115,7 +156,11 @@ def create_event():
     description = event_description.get('1.0', 'end-1c')
     owner = owner_name.get()
     startTime = start_time.get()
+    if not time.strptime(startTime, "%H:%M"):
+        return           
     endTime = end_time.get()
+    if not time.strptime(endTime, "%H:%M"):
+        return  
     eventData = [owner, startDate, endDate, eventName, startTime, endTime, description]
     print(eventData)
     
@@ -136,6 +181,7 @@ def create_event():
     clear()
     return eventData
 
+
 #Button for showing events
 Button(eventCreation, text='Show Events',padx=10, command = query).grid(column=2, row=0)
 
@@ -143,6 +189,9 @@ Button(eventCreation, text='Show Events',padx=10, command = query).grid(column=2
 filter_label= Label(eventCreation, text = "Filter by:").grid(column=3, row = 0)
 filter_event_button = Button(eventCreation, text='Go', command = filter_event)
 filter_event_button.grid(column=5, row=0)
+
+#Button for showing available times
+available_time_button = Button(eventCreation, text="Show available times", command=get_available_times).grid(column=6, row=0)
 
 #Button for Deleting records/event
 Label(eventCreation, text = "Select ID Number").grid(column=2, row=2)
@@ -273,6 +322,7 @@ connection_obj.close()
 '''
 
 eventCreation.mainloop()
+
 
 
 
