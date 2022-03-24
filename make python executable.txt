@@ -1,0 +1,1 @@
+pyinstaller -F --hidden-import "babel.numbers" test.py
