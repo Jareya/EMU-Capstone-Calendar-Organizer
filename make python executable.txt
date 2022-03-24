@@ -1,1 +1,9 @@
+Install pyinstaller with this command
+
+pip install pyinstaller
+
+run this command from an admin powershell from the directory with the rest of the files from github in it
+
 pyinstaller -F --hidden-import "babel.numbers" calendar_test.py
+
+the EXE will be in dist folder when it's done
