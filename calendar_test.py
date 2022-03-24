@@ -92,17 +92,23 @@ def get_available_times(duration=timedelta(hours=1)):
 
     #Grabs specific data needed for datetime format (Year, Month, Day, Time)
     for appointment in appointments:
-        booked += [(appointment[4].split('/')[2], appointment[4].split('/')[0], appointment[4].split('/')[1], appointment[2].split(':')[0], appointment[4].split('/')[2], appointment[4].split('/')[0], appointment[4].split('/')[1], appointment[3].split(':')[0])]
-    #Creates datetime tuple 
+        booked += [(appointment[4].split('/')[2], appointment[4].split('/')[0], appointment[4].split('/')[1], appointment[2].split(':')[0], appointment[2].split(':')[1], appointment[4].split('/')[2], appointment[4].split('/')[0], appointment[4].split('/')[1], appointment[3].split(':')[0], appointment[2].split(':')[1])]
+    
+    #Creates datetime tuple for events on same day as selected start date
     for i in booked:
-        all_events.append(tuple((datetime(int(i[0]),int(i[1]),int(i[2]),int(i[3])), datetime(int(i[4]),int(i[5]),int(i[6]),int(i[7])))))
-
-
+        if int(i[1]) == int(startDate.split('/')[0]) and int(i[2]) == int(startDate.split('/')[1]):
+            all_events.append(tuple((datetime(int(i[0]),int(i[1]),int(i[2]),int(i[3]), int(i[4])), datetime(int(i[5]),int(i[6]),int(i[7]),int(i[8]), int(i[9])))))
+        else:
+            continue
+    
     #The time range to find availabe slots
-    hours = (datetime(int(appointment[4].split('/')[2]), int(appointment[4].split('/')[0]), int(appointment[4].split('/')[1]), 9), (datetime(int(appointment[4].split('/')[2]), int(appointment[4].split('/')[0]), int(appointment[4].split('/')[1]), 18)))
-
+    #hours = (datetime(int(appointment[4].split('/')[2]), int(appointment[4].split('/')[0]), int(appointment[4].split('/')[1]), 9), (datetime(int(appointment[4].split('/')[2]), int(appointment[4].split('/')[0]), int(appointment[4].split('/')[1]), 18)))
+    
+    hours = (datetime(int(startDate.split('/')[2]), int(startDate.split('/')[0]), int(startDate.split('/')[1]), 8), (datetime(int(startDate.split('/')[2]), int(startDate.split('/')[0]), int(startDate.split('/')[1]), 18)))
+    print(hours)
     #Sorts all events and displays the timeslots available 
     slots = sorted([(hours[0], hours[0])] + all_events + [(hours[1], hours[1])])
+    
     show_available_slots=''
     available_label = Label(eventCreation, text = show_available_slots)
     for start, end in ((slots[i][1], slots[i+1][0]) for i in range(len(slots)-1)):
@@ -322,7 +328,6 @@ connection_obj.close()
 '''
 
 eventCreation.mainloop()
-
 
 
 
