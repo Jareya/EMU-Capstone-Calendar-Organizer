@@ -1,1 +1,1 @@
-pyinstaller -F --hidden-import "babel.numbers" test.py
+pyinstaller -F --hidden-import "babel.numbers" calendar_test.py
